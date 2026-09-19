@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d0d11" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="description" content="Memory Ticket App - Record memories by turning photos into authentic ticket stubs" />
+  <title>Memory Ticket App</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Libre+Barcode+39&display=swap" rel="stylesheet" />
+
+  <!-- Libraries for Export & Packaging -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="apple-touch-icon" href="assets/icon-192.png" />
+</head>
+<body class="theme-dark">
+  <div class="screen-wrapper">
+    <!-- Desktop Device Frame Shell -->
+    <div class="device-container" id="deviceContainer">
+      
+
+
+      <!-- MAIN APP VIEWS CONTAINER -->
+      <div class="app-content">
+
+        <!-- =================================================================
+             VIEW 1: TICKET STUB DETAIL VIEW (Exact match + Rich features)
+             ================================================================= -->
+        <div class="view-panel active" id="detailView">
+          <!-- Top App Navigation Bar -->
+          <header class="app-bar">
+            <button class="icon-btn back-btn" id="btnBackToGallery" aria-label="Back to tickets gallery" title="Back to gallery">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            <h1 class="app-bar-title">Ticket Stub</h1>
+            
+            <div class="header-actions">
+              <!-- Live Camera Snap Button -->
+              <button class="icon-btn" id="btnHeaderCamera" aria-label="Open Live Camera" title="Snap live memory">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                  <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+              </button>
+
+              <!-- Dark / Light Mode Toggle -->
+              <button class="icon-btn" id="btnThemeToggle" aria-label="Toggle Theme" title="Toggle Light/Dark Mode">
+                <span class="theme-icon-sun">☀️</span>
+                <span class="theme-icon-moon">🌙</span>
+              </button>
+
+              <!-- Three-dot Menu -->
+              <div class="menu-wrap">
+                <button class="icon-btn menu-btn" id="btnMenu" aria-label="Menu options">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="5" r="2.2" />
+                    <circle cx="12" cy="12" r="2.2" />
+                    <circle cx="12" cy="19" r="2.2" />
+                  </svg>
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                  <button class="dropdown-item" id="menuNew">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <span>New Memory</span>
+                  </button>
+                  <button class="dropdown-item" id="menuLiveCamera">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                    <span>Live Camera</span>
+                  </button>
+                  <button class="dropdown-item" id="menuGallery">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    <span>All Tickets</span>
+                  </button>
+                  <button class="dropdown-item" id="menuDuplicate">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span>Duplicate Stub</span>
+                  </button>
+                  <button class="dropdown-item" id="menuShareCaption">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    <span>Copy Caption</span>
+                  </button>
+                  <div class="dropdown-divider"></div>
+                  <button class="dropdown-item" id="menuDataBackup">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    <span>Backup & Tools</span>
+                  </button>
+                  <a class="dropdown-item" href="MemoryTickets.apk" download="MemoryTickets.apk" style="text-decoration:none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                    <span>Download APK</span>
+                  </a>
+                  <button class="dropdown-item text-danger" id="menuDelete">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    <span>Delete Stub</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <!-- Ticket Stub Stage (Centered & Realistic Stamp Cutouts) -->
+          <main class="stub-stage">
+            <div class="ticket-wrapper" id="ticketWrapper">
+              <div class="ticket-card" id="ticketCard">
+                <!-- Top Postage Stamp Scalloped Perforation Teeth -->
+                <div class="perf-edge-top"></div>
+
+                <!-- Upper Section: Category, Multi-Photo, Heading -->
+                <div class="ticket-upper">
+                  <!-- Category Badge -->
+                  <div class="ticket-badge-row">
+                    <span class="ticket-category-badge" id="ticketCategoryBadge">
+                      <span id="ticketCatIcon">✈️</span>
+                      <span id="ticketCatLabel">Travel</span>
+                    </span>
+                    <span class="ticket-serial-badge" id="ticketSerialBadge">#MT-20250508</span>
+                  </div>
+
+                  <!-- Multi-Photo Gallery Box -->
+                  <div class="ticket-photo-box" id="ticketPhotoBox">
+                    <div class="ticket-photo-slides" id="photoSlidesContainer">
+                      <img id="ticketPhoto" src="assets/ghibli_park.jpg" alt="Memory Photo" />
+                    </div>
+                    
+                    <!-- Carousel Controls (if multiple photos) -->
+                    <button class="photo-nav-btn prev-photo-btn" id="btnPrevPhoto" aria-label="Previous photo">‹</button>
+                    <button class="photo-nav-btn next-photo-btn" id="btnNextPhoto" aria-label="Next photo">›</button>
+                    
+                    <!-- Photo Dots Indicator -->
+                    <div class="photo-dots-wrap" id="photoDotsWrap">
+                      <span class="photo-dot active"></span>
+                    </div>
+                  </div>
+
+                  <!-- Details -->
+                  <div class="ticket-info">
+                    <h2 class="ticket-title" id="ticketTitle">Ghibli Park</h2>
+                    <div class="ticket-meta">
+                      <span class="meta-item">
+                        <span class="meta-icon loc-pin">📍</span>
+                        <span id="ticketLoc">Nagakute</span>
+                      </span>
+                      <span class="meta-item">
+                        <span class="meta-icon cal-icon">📅</span>
+                        <span id="ticketDate">2025.05.08</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Perforation Tear Line with Side Circular Notches -->
+                <div class="ticket-tear-section">
+                  <div class="side-notch notch-left"></div>
+                  <div class="dashed-tear-line"></div>
+                  <div class="side-notch notch-right"></div>
+                </div>
+
+                <!-- Lower Section: Quote & Authentic Barcode -->
+                <div class="ticket-lower">
+                  <div class="quote-row">
+                    <div class="quote-mark">“</div>
+                    <p class="quote-text" id="ticketQuote">howl's moving castle!</p>
+                  </div>
+
+                  <!-- Authentic Ticket Barcode -->
+                  <div class="ticket-barcode-wrap" id="ticketBarcodeWrap">
+                    <div class="ticket-barcode-lines" id="barcodeLines"></div>
+                    <span class="ticket-barcode-text" id="barcodeText">*MT-20250508-8421*</span>
+                  </div>
+                </div>
+
+                <!-- Bottom Postage Stamp Scalloped Perforation Teeth -->
+                <div class="perf-edge-bottom"></div>
+              </div>
+            </div>
+          </main>
+
+          <!-- Bottom Action Bar (Download, Purple Edit Pill, Share) -->
+          <footer class="action-bar">
+            <!-- Download Button -->
+            <button class="action-circle-btn" id="btnDownload" aria-label="Download ticket image" title="Download ticket as PNG">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+            </button>
+
+            <!-- Purple Pill Edit Button -->
+            <button class="pill-btn edit-pill-btn" id="btnEdit" aria-label="Edit ticket">
+              Edit
+            </button>
+
+            <!-- Share Button -->
+            <button class="action-circle-btn" id="btnShare" aria-label="Share ticket" title="Share ticket">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                <polyline points="16 6 12 2 8 6"></polyline>
+                <line x1="12" y1="2" x2="12" y2="15"></line>
+              </svg>
+            </button>
+          </footer>
+        </div>
+
+        <!-- =================================================================
+             VIEW 2: GALLERY / TIMELINE / COLLECTION VIEW
+             ================================================================= -->
+        <div class="view-panel" id="galleryView">
+          <header class="app-bar gallery-bar">
+            <div class="gallery-brand-wrap">
+              <img src="assets/logo.png" alt="Memory Tickets Logo" class="brand-logo-img" />
+              <div>
+                <h1 class="app-bar-title gallery-title">Memory Tickets</h1>
+                <span class="gallery-subtitle" id="galleryCount">0 saved</span>
+              </div>
+            </div>
+            
+            <div class="gallery-top-controls">
+              <!-- View Switcher (Grid vs Timeline) -->
+              <button class="icon-pill-btn" id="btnViewToggle" title="Toggle Grid / Timeline view">
+                <span id="viewModeIcon">📅</span>
+                <span id="viewModeLabel">Timeline</span>
+              </button>
+              
+              <!-- Sort Toggle -->
+              <button class="icon-btn" id="btnSortToggle" title="Sort Newest / Oldest">
+                <span id="sortIcon">⇅</span>
+              </button>
+
+              <!-- Backup / Export modal -->
+              <button class="icon-btn" id="btnOpenBackup" title="Backup & Batch Export">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+              </button>
+
+              <!-- Back to active ticket -->
+              <button class="icon-btn" id="btnBackToDetail" aria-label="View current stub" title="View Current Stub">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+              </button>
+            </div>
+          </header>
+
+          <!-- Search & Category Filters -->
+          <div class="gallery-filters-area">
+            <!-- Search Bar -->
+            <div class="search-bar-wrap">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="searchInput" class="search-input" placeholder="Search title, location, quote..." />
+              <button class="clear-search-btn" id="btnClearSearch" style="display:none;">✕</button>
+            </div>
+
+            <!-- Category Filter Chips -->
+            <div class="category-chips-scroll">
+              <button class="cat-filter-chip active" data-category="all">All</button>
+              <button class="cat-filter-chip" data-category="travel">✈️ Travel</button>
+              <button class="cat-filter-chip" data-category="food">🍜 Food</button>
+              <button class="cat-filter-chip" data-category="concert">🎵 Concert</button>
+              <button class="cat-filter-chip" data-category="everyday">✨ Everyday</button>
+              <button class="cat-filter-chip" data-category="nature">🌿 Nature</button>
+              <button class="cat-filter-chip" data-category="party">🎉 Party</button>
+            </div>
+          </div>
+
+          <!-- Gallery Body (Grid & Timeline Containers) -->
+          <div class="gallery-scroll">
+            <div class="empty-state" id="emptyState" style="display:none;">
+              <div class="empty-icon">★</div>
+              <h2>No tickets found</h2>
+              <p>Turn your photos into keepsake ticket stubs or clear search filters.</p>
+              <button class="pill-btn empty-create-btn" id="btnEmptyCreate">Create First Ticket</button>
+            </div>
+
+            <!-- 2-Column Grid Container -->
+            <div class="ticket-grid" id="ticketGrid"></div>
+
+            <!-- Chronological Timeline Container -->
+            <div class="ticket-timeline" id="ticketTimeline" style="display:none;"></div>
+          </div>
+
+          <!-- Floating Action Buttons -->
+          <div class="fab-group">
+            <!-- Camera Quick FAB -->
+            <button class="fab-btn fab-camera" id="btnFabCamera" aria-label="Snap photo with live camera" title="Live Camera">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+            </button>
+
+            <!-- Create New Ticket (+) FAB -->
+            <button class="fab-btn fab-main" id="btnFabCreate" aria-label="Create new ticket" title="New Ticket">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </div> <!-- /app-content -->
+
+      <!-- =================================================================
+           LIVE CAMERA VIEWFINDER MODAL
+           ================================================================= -->
+      <div class="camera-modal" id="cameraModal">
+        <div class="camera-viewfinder-wrap">
+          <!-- Video Stream -->
+          <video id="cameraVideo" class="camera-video" autoplay playsinline muted></video>
+          <canvas id="cameraCaptureCanvas" style="display:none;"></canvas>
+
+          <!-- Ticket Aspect Ratio Framing & Alignment Guide -->
+          <div class="camera-framing-guide">
+            <div class="framing-reticle">
+              <div class="reticle-corner corner-tl"></div>
+              <div class="reticle-corner corner-tr"></div>
+              <div class="reticle-corner corner-bl"></div>
+              <div class="reticle-corner corner-br"></div>
+              <span class="framing-label">TICKET FRAME</span>
+            </div>
+          </div>
+
+          <!-- Camera Grid Overlay (Rule of Thirds) -->
+          <div class="camera-grid" id="cameraGrid">
+            <div class="grid-line line-h1"></div>
+            <div class="grid-line line-h2"></div>
+            <div class="grid-line line-v1"></div>
+            <div class="grid-line line-v2"></div>
+          </div>
+
+          <!-- Flash Simulation Overlay -->
+          <div class="camera-flash" id="cameraFlash"></div>
+
+          <!-- Active Filter Floating Banner -->
+          <div class="camera-filter-banner" id="cameraFilterBanner">✨ Original</div>
+
+          <!-- Camera Top Bar (Safe Area Aligned) -->
+          <div class="camera-top-bar">
+            <button class="camera-icon-btn" id="btnCloseCamera" aria-label="Close camera" title="Close Camera">✕</button>
+            <div class="camera-status-pill">
+              <span class="cam-dot"></span>
+              <span>LIVE</span>
+            </div>
+            <div class="camera-top-actions">
+              <button class="camera-icon-btn" id="btnToggleGrid" aria-label="Toggle Grid" title="Toggle Grid Overlay">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                  <line x1="9" y1="3" x2="9" y2="21"></line>
+                  <line x1="15" y1="3" x2="15" y2="21"></line>
+                  <line x1="3" y1="9" x2="21" y2="9"></line>
+                  <line x1="3" y1="15" x2="21" y2="15"></line>
+                </svg>
+              </button>
+              <button class="camera-icon-btn" id="btnFlipCamera" aria-label="Flip camera" title="Switch Front/Back Camera">🔄</button>
+            </div>
+          </div>
+
+          <!-- Camera Bottom Section: Filter Tray & Shutter Controls -->
+          <div class="camera-bottom-section">
+            <!-- Filter Selector Carousel -->
+            <div class="camera-filters-tray" id="cameraFiltersTray" role="radiogroup" aria-label="Camera Filters">
+              <!-- Dynamically populated filter chips -->
+            </div>
+
+            <!-- Bottom Controls Bar -->
+            <div class="camera-controls-bar">
+              <label class="camera-gallery-btn" for="cameraFileInput" title="Pick from Gallery">
+                <span>🖼️</span>
+                <input type="file" id="cameraFileInput" accept="image/*" class="sr-only" />
+              </label>
+
+              <!-- Shutter Snapshot Button -->
+              <button class="camera-shutter-btn" id="btnShutter" aria-label="Take picture" title="Capture Memory">
+                <div class="shutter-inner"></div>
+              </button>
+
+              <!-- Filter Reset / Direct Toggle Button -->
+              <button class="camera-filter-reset-btn" id="btnResetFilter" title="Reset filter to normal" aria-label="Reset Filter">
+                <span class="reset-icon">✨</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================================================================
+           EDIT & CREATE BOTTOM SHEET DRAWER
+           ================================================================= -->
+      <div class="sheet-overlay" id="sheetOverlay">
+        <div class="sheet-drawer" id="sheetDrawer">
+          <div class="sheet-pull-handle"></div>
+          
+          <div class="sheet-header">
+            <h2 class="sheet-title" id="sheetTitle">Edit Ticket</h2>
+            <button class="icon-btn sheet-close" id="btnCloseSheet" aria-label="Close edit drawer">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          <div class="sheet-body">
+            <!-- Category Tag Selector -->
+            <div class="form-group">
+              <label class="field-label">Category</label>
+              <div class="category-select-row" id="sheetCategorySelect">
+                <button type="button" class="sheet-cat-chip active" data-cat="travel">✈️ Travel</button>
+                <button type="button" class="sheet-cat-chip" data-cat="food">🍜 Food</button>
+                <button type="button" class="sheet-cat-chip" data-cat="concert">🎵 Concert</button>
+                <button type="button" class="sheet-cat-chip" data-cat="everyday">✨ Everyday</button>
+                <button type="button" class="sheet-cat-chip" data-cat="nature">🌿 Nature</button>
+                <button type="button" class="sheet-cat-chip" data-cat="party">🎉 Party</button>
+              </div>
+            </div>
+
+            <!-- Multi-Photo Upload Area -->
+            <div class="form-group">
+              <div class="label-with-count">
+                <label class="field-label">Photos (Up to 4)</label>
+                <span class="photos-count-text" id="photosCountText">1 / 4 photos</span>
+              </div>
+
+              <!-- Multi-Photo Thumbnails List -->
+              <div class="multi-photos-list" id="multiPhotosList">
+                <!-- Dynamically populated photo items with delete buttons -->
+                <button type="button" class="add-photo-btn" id="btnAddPhotoTile" title="Add another photo">
+                  <span class="add-photo-plus">+</span>
+                  <span class="add-photo-text">Add</span>
+                </button>
+              </div>
+
+              <!-- Action buttons for Camera vs File -->
+              <div class="photo-action-buttons">
+                <button type="button" class="photo-sub-btn" id="btnSheetCamera">
+                  <span>📷</span> Snap Live Photo
+                </button>
+                <label class="photo-sub-btn" for="sheetFileInput">
+                  <span>📁</span> Choose from Gallery
+                  <input type="file" id="sheetFileInput" accept="image/*" multiple class="sr-only" />
+                </label>
+              </div>
+
+              <!-- Quick Presets -->
+              <div class="presets-row">
+                <span class="presets-label">Presets:</span>
+                <button type="button" class="preset-chip" data-preset="ghibli">Ghibli Park</button>
+                <button type="button" class="preset-chip" data-preset="kyoto">Kyoto</button>
+                <button type="button" class="preset-chip" data-preset="paris">Paris Cafe</button>
+                <button type="button" class="preset-chip" data-preset="sunset">Sunset Bay</button>
+              </div>
+            </div>
+
+            <!-- Title Field -->
+            <div class="form-group">
+              <label class="field-label" for="inputTitle">Title</label>
+              <input type="text" id="inputTitle" class="text-input" placeholder="e.g. Ghibli Park" maxlength="32" />
+            </div>
+
+            <!-- Location & Date Fields -->
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label class="field-label" for="inputLoc">Location</label>
+                <div class="input-with-icon">
+                  <span class="input-prefix">📍</span>
+                  <input type="text" id="inputLoc" class="text-input has-prefix" placeholder="e.g. Nagakute" maxlength="24" />
+                </div>
+              </div>
+              <div class="form-group flex-1">
+                <label class="field-label" for="inputDate">Date</label>
+                <input type="date" id="inputDate" class="text-input" />
+              </div>
+            </div>
+
+            <!-- Quote / Memory Line Field -->
+            <div class="form-group">
+              <label class="field-label" for="inputQuote">A line to remember it by</label>
+              <textarea id="inputQuote" class="text-input textarea-input" rows="2" placeholder="howl's moving castle!" maxlength="80"></textarea>
+            </div>
+
+            <!-- Error Banner -->
+            <div class="form-error" id="formError" style="display:none;"></div>
+          </div>
+
+          <!-- Sheet Action Buttons -->
+          <div class="sheet-footer">
+            <button class="sheet-secondary-btn" id="btnCancelSheet">Cancel</button>
+            <button class="sheet-primary-btn" id="btnSaveTicket">Save Ticket</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================================================================
+           BACKUP, RESTORE & BATCH DOWNLOAD MODAL
+           ================================================================= -->
+      <div class="sheet-overlay" id="backupModal">
+        <div class="sheet-drawer backup-drawer">
+          <div class="sheet-pull-handle"></div>
+          <div class="sheet-header">
+            <h2 class="sheet-title">Backup & Portability</h2>
+            <button class="icon-btn sheet-close" id="btnCloseBackup">✕</button>
+          </div>
+          
+          <div class="sheet-body backup-body">
+            <div class="backup-card">
+              <div class="backup-card-info">
+                <h3>📱 Android Native APK</h3>
+                <p>Install the standalone Android application directly on your phone with full camera, offline storage, and hardware acceleration.</p>
+              </div>
+              <a class="backup-action-btn accent-btn" href="MemoryTickets.apk" download="MemoryTickets.apk" style="text-decoration:none;">Download MemoryTickets.apk (13 MB)</a>
+            </div>
+
+            <div class="backup-card">
+              <div class="backup-card-info">
+                <h3>💾 Backup All Memories</h3>
+                <p>Export all your tickets and photos into a single JSON file. You can restore this file on any phone or browser.</p>
+              </div>
+              <button class="backup-action-btn" id="btnExportJSON">Export JSON</button>
+            </div>
+
+            <div class="backup-card">
+              <div class="backup-card-info">
+                <h3>📂 Restore from Backup</h3>
+                <p>Select a previously exported <code>.json</code> backup file to restore all your memory tickets.</p>
+              </div>
+              <label class="backup-action-btn file-btn" for="importJSONFile">
+                Import JSON
+                <input type="file" id="importJSONFile" accept=".json" class="sr-only" />
+              </label>
+            </div>
+
+            <div class="backup-card">
+              <div class="backup-card-info">
+                <h3>📦 Batch Download (ZIP)</h3>
+                <p>Render and export every single ticket stub into high-res PNG images packed in a zip file.</p>
+              </div>
+              <button class="backup-action-btn accent-btn" id="btnBatchDownload">Download All (ZIP)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================================================================
+           LONG PRESS / CONTEXT ACTIONS MODAL
+           ================================================================= -->
+      <div class="sheet-overlay" id="contextModal">
+        <div class="sheet-drawer context-drawer">
+          <div class="sheet-pull-handle"></div>
+          <div class="context-card-header">
+            <h3 id="contextCardTitle">Memory Title</h3>
+            <span id="contextCardMeta">Location · Date</span>
+          </div>
+          <div class="context-options-list">
+            <button class="context-item" id="contextBtnView">
+              <span>🎟️</span> View Ticket Stub
+            </button>
+            <button class="context-item" id="contextBtnEdit">
+              <span>✏️</span> Edit Details
+            </button>
+            <button class="context-item" id="contextBtnDuplicate">
+              <span>📄</span> Duplicate Stub
+            </button>
+            <button class="context-item" id="contextBtnCaption">
+              <span>💬</span> Copy Caption for Socials
+            </button>
+            <button class="context-item" id="contextBtnDownload">
+              <span>📥</span> Download High-Res PNG
+            </button>
+            <div class="dropdown-divider"></div>
+            <button class="context-item text-danger" id="contextBtnDelete">
+              <span>🗑️</span> Delete Stub
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================================================================
+           UNDO DELETE SNACKBAR
+           ================================================================= -->
+      <div class="undo-snackbar" id="undoSnackbar">
+        <span id="undoSnackbarText">Ticket deleted</span>
+        <button class="undo-btn" id="btnUndoDelete">UNDO</button>
+      </div>
+
+      <!-- Toast Notification -->
+      <div class="toast" id="toast"></div>
+
+
+
+    </div> <!-- /device-container -->
+
+    <!-- Desktop Floating Frame Toggle -->
+    <aside class="desktop-controls">
+      <button class="mode-toggle-btn" id="btnFrameToggle" title="Toggle smartphone mockup frame">
+        <span class="toggle-icon">📱</span>
+        <span class="toggle-label">Mobile Frame</span>
+      </button>
+    </aside>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

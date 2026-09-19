@@ -1,0 +1,22 @@
+{
+  "name": "Memory Tickets",
+  "short_name": "MemoryTix",
+  "description": "Turn your photos and memories into keepsake ticket stubs",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0d11",
+  "theme_color": "#0d0d11",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
